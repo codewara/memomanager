@@ -89,7 +89,7 @@ public class Explorer extends JFrame {
 
         // Right panel: MemoryPanel
         this.memoryPanel = new MemoryPanel(diskManager);
-        memoryPanel.setBorder(BorderFactory.createTitledBorder("Memory View"));
+        memoryPanel.setBorder(BorderFactory.createTitledBorder("Memory View - 2MB"));
 
         // Wrap MemoryPanel in a scroll pane
         JScrollPane memoryScrollPane = new JScrollPane(memoryPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
