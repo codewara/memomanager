@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.File;
-import java.util.List;
+import java.util.*;
 
 public class FileLoader {
     public static Directory loadFromJSON(File file, DiskManager diskManager) throws Exception {
@@ -24,7 +24,21 @@ public class FileLoader {
                 String name = childNode.get("name").asText();
                 String content = childNode.get("content").asText("");
                 String modifiedTime = childNode.get("modified").asText("");
-                List<Integer> usedBlocks = diskManager.allocateContiguous(content);
+                int startBlock = childNode.has("startBlock") ? childNode.get("startBlock").asInt() : -1;
+                int endBlock = childNode.has("endBlock") ? childNode.get("endBlock").asInt() : -1;
+                List<Integer> usedBlocks;
+                if (startBlock != -1 && endBlock != -1) {
+                    usedBlocks = new ArrayList<>();
+                    for (int i = startBlock; i <= endBlock; i++) {
+                        int contentStart = (i - startBlock) * 10;
+                        int contentEnd = Math.min(content.length(), contentStart + 10);
+                        String chunk = content.substring(contentStart, contentEnd);
+
+                        diskManager.getBlock(i).setUsed(true);
+                        diskManager.getBlock(i).setData(chunk);
+                        usedBlocks.add(i);
+                    }
+                } else usedBlocks = diskManager.allocateContiguous(content);
                 Model.File file = new Model.File(name, dir, content, modifiedTime, usedBlocks);
                 dir.addChild(file);
             }
