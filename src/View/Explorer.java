@@ -122,11 +122,16 @@ public class Explorer extends JFrame {
         if (currentDir.getParent() != null) tableModel.addRow(new Object[]{dirIcon, "..", "", ""});
 
         // Add current directory contents
-        for (SystemNode node : currentDir.getChildren()) {
-            ImageIcon icon = node.isDirectory() ? dirIcon : fileIcon;
+        for (SystemNode node : currentDir.getChildren()) if (node.isDirectory()) {
             String size = calculateSize(node.getSize());
             String modified = String.valueOf(node.getModifiedTime());
-            tableModel.addRow(new Object[]{icon, node.getName(), modified, size});
+            tableModel.addRow(new Object[]{dirIcon, node.getName(), modified, size});
+        }
+
+        for (SystemNode node : currentDir.getChildren()) if (!node.isDirectory()) {
+            String size = calculateSize(node.getSize());
+            String modified = String.valueOf(node.getModifiedTime());
+            tableModel.addRow(new Object[]{fileIcon, node.getName(), modified, size});
         }
 
         if (currentDir.getChildren().isEmpty()) tableModel.addRow(new Object[]{null, "(Empty Directory)", "", ""});
