@@ -19,7 +19,7 @@ public class File extends SystemNode {
     public void setContent(String content) {
         this.content = content;
         this.size = content != null ? content.length() : 0;
-        setModifiedTime(new SimpleDateFormat("yyyy-MMM-dd HH:mm").format(new Date()));
+        setModifiedTime(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()));
     }
 
     public Set<Integer> getUsedBlocks() { return new HashSet<>(allocatedBlocks); }
