@@ -43,7 +43,10 @@ public class SystemController {
 
     }
 
-    public void updateJSON () { FileSaver.saveToJSON(root, source);}
+    public void updateJSON () {
+        FileSaver.saveToJSON(root, source);
+        explorer.getMemoryPanel().update();
+    }
 
     public void handleCommand (String command) {
         String[] cmd = command.toLowerCase().trim().split("\\s+");
@@ -212,7 +215,15 @@ public class SystemController {
         SystemNode node = currentDir.findChild(fileName);
         if (node != null && !node.isDirectory()) {
             Model.File file = (Model.File) node;
+            String oldContent = file.getContent(); // Store old content for comparison
             explorer.showContent(file);
+
+            // If content was changed, update modified time and content
+            if (!file.getContent().equals(oldContent)) {
+                diskManager.deallocate(file.getUsedBlocks()); // Deallocate old blocks
+                file.setUsedBlocks(diskManager.allocateContiguous(file.getContent())); // Allocate new blocks
+                explorer.getMemoryPanel().update();
+            }
             return;
         }
 
@@ -233,6 +244,8 @@ public class SystemController {
         currentDir.addChild(newFile);
         explorer.updateTable(currentDir);
         explorer.showContent(newFile); // Open the new file in the editor
+        if (!newFile.getContent().isEmpty()) newFile.setUsedBlocks(diskManager.allocateContiguous(newFile.getContent())); // Allocate blocks for new content
+        explorer.getMemoryPanel().update();
     }
 
     private void rm(String fileName) {
@@ -247,6 +260,7 @@ public class SystemController {
 
             // Remove the file
             currentDir.removeChild(node);
+            diskManager.deallocate(((Model.File) node).getUsedBlocks()); // Deallocate disk blocks
             explorer.updateTable(currentDir);
         } else explorer.showError("File not found: " + fileName); // Show error if file doesn't exist
     }
