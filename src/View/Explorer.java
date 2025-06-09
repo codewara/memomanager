@@ -15,14 +15,20 @@ public class Explorer extends JFrame {
     private final JTextField CLIField;
     private final JTable table;
     private final DefaultTableModel tableModel;
-
-    private final ImageIcon dirIcon = new ImageIcon(new ImageIcon("src/Assets/directory.png").getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
-    private final ImageIcon fileIcon = new ImageIcon(new ImageIcon("src/Assets/file.png").getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH));
+    private final ImageIcon dirIcon = new ImageIcon(
+        new ImageIcon("src/Assets/directory.png").getImage()
+        .getScaledInstance(25, 25, Image.SCALE_SMOOTH)
+    );
+    private final ImageIcon fileIcon = new ImageIcon(
+        new ImageIcon("src/Assets/file.png").getImage()
+        .getScaledInstance(25, 25, Image.SCALE_SMOOTH)
+    );
 
     public Explorer (Directory root) {
         super("File Explorer");
         this.currentDir = root;
 
+        // Frame setup
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
@@ -30,23 +36,20 @@ public class Explorer extends JFrame {
 
         // Path field
         JPanel topPanel = new JPanel(new BorderLayout());
-        pathField = new JTextField(getFullPath(currentDir));
+        pathField = new JTextField();
         pathField.setEditable(false);
         topPanel.add(pathField, BorderLayout.NORTH);
+        add(topPanel, BorderLayout.NORTH);
 
-        // Table setup
-        tableModel = new DefaultTableModel(new Object[]{"", "Name", "Size", "Modified"}, 0) {
+        // Table model
+        tableModel = new DefaultTableModel(new Object[]{"", "Name", "Modified", "Size"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
-
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Icon.class;
-                return String.class;
-            }
+            @Override public Class<?> getColumnClass(int columnIndex) { return columnIndex == 0 ? Icon.class : String.class; }
         };
+
+        // Create table with custom layout
         table = new JTable(tableModel) {
-            @Override
-            public void doLayout() {
+            @Override public void doLayout() {
                 super.doLayout();
                 if (getColumnModel().getColumnCount() > 0) {
                     getColumnModel().getColumn(0).setPreferredWidth(25);
@@ -55,6 +58,8 @@ public class Explorer extends JFrame {
                 }
             }
         };
+
+        // Table properties
         table.setRowHeight(40);
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
@@ -107,9 +112,9 @@ public class Explorer extends JFrame {
 
         for (SystemNode node : currentDir.getChildren()) {
             ImageIcon icon = node.isDirectory() ? dirIcon : fileIcon;
-            String size = node.getSize() + " bytes";
-            String modified = sdf.format(new Date(node.getModifiedAt()));
-            tableModel.addRow(new Object[]{icon, node.getName(), size, modified});
+            String size = calculateSize(node.getSize());
+            String modified = String.valueOf(node.getModifiedTime());
+            tableModel.addRow(new Object[]{icon, node.getName(), modified, size});
         }
 
         if (currentDir.getChildren().isEmpty()) {
@@ -146,5 +151,12 @@ public class Explorer extends JFrame {
             current = current.getParent();
         }
         return path.isEmpty() ? "/" : path.toString();
+    }
+
+    private String calculateSize(int size) {
+        if (size < 1024) return size + " B";
+        else if (size < 1024 * 1024) return (size / 1024.0) + " KB";
+        else if (size < 1024 * 1024 * 1024) return (size / (1024.0 * 1024)) + " MB";
+        else return (size / (1024.0 * 1024 * 1024)) + " GB";
     }
 }
