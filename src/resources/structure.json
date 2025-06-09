@@ -10,23 +10,23 @@
           "type": "file",
           "name": "a.txt",
           "content": "This is a text file.",
-          "modified": "2023-10-01T12:00:00Z"
+          "modified": "09-Jun-2025 02:41"
         },
         {
           "type": "file",
           "name": "b.txt",
           "content": "This is another text file.",
-          "modified": "2023-10-01T12:00:00Z"
+          "modified": "01-Oct-2023 12:00"
         }
       ],
-      "modified": "2023-10-01T12:00:00Z"
+      "modified": "09-Jun-2025 02:41"
     },
     {
       "type": "file",
       "name": "readme.md",
       "content": "# Welcome to the Project\n\nThis is a sample project structure.\n\n## Contents\n- `docs/`: Contains documentation files.\n- `readme.md`: This file provides an overview of the project.\n",
-      "modified": "2023-10-01T12:00:00Z"
+      "modified": "01-Oct-2023 12:00"
     }
   ],
-  "modified": "2023-10-01T12:00:00Z"
+  "modified": ""
 }
