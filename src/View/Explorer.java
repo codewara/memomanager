@@ -1,16 +1,15 @@
 package View;
 
-import Model.Directory;
-import Model.SystemNode;
+import Controller.SystemController;
+import Model.*;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Explorer extends JFrame {
-    private Directory currentDir;
     private final JTextField pathField;
     private final JTextField CLIField;
     private final JTable table;
@@ -24,7 +23,10 @@ public class Explorer extends JFrame {
         .getScaledInstance(25, 25, Image.SCALE_SMOOTH)
     );
 
-    public Explorer (Directory root) {
+    private Directory currentDir;
+
+    // Constructor
+    public Explorer (SystemController controller, Directory root, DiskManager diskManager) {
         super("File Explorer");
         this.currentDir = root;
 
@@ -70,46 +72,44 @@ public class Explorer extends JFrame {
                 if (e.getClickCount() == 2) {
                     int row = table.getSelectedRow();
                     String name = (String) table.getValueAt(row, 1);
-                    for (SystemNode node : currentDir.getChildren()) {
-                        if (node.getName().equals(name) && node.isDirectory()) {
-                            currentDir = (Directory) node;
-                            updateTable();
-                            break;
-                        }
-                    }
+                    controller.open(name);
                 }
             }
         });
 
+        // Scroll pane for table
         JScrollPane tableScroll = new JScrollPane(table);
 
-        // Right panel (Memory structure visualization)
-        JPanel memoryPanel = new JPanel();
+        // Right panel: MemoryPanel
+        MemoryPanel memoryPanel = new MemoryPanel(diskManager);
         memoryPanel.setPreferredSize(new Dimension(300, 0));
         memoryPanel.setBorder(BorderFactory.createTitledBorder("Memory View"));
-        memoryPanel.add(new JLabel("(Memory visualization here)"));
 
-        // SplitPane
+        // Split pane for table and memory view
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, memoryPanel);
+        splitPane.setDividerLocation(650);
         add(splitPane, BorderLayout.CENTER);
 
         // CLI field
         CLIField = new JTextField();
         CLIField.addActionListener(_ -> {
-            handleCommand(CLIField.getText());
+            controller.handleCommand(CLIField.getText());
             CLIField.setText("");
         });
         add(CLIField, BorderLayout.SOUTH);
 
-        updateTable();
         setVisible(true);
     }
 
-    private void updateTable() {
+    public void updateTable(Directory dir) {
+        this.currentDir = dir;
         pathField.setText(getFullPath(currentDir));
         tableModel.setRowCount(0);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+        // Add ".." for parent directory if it exists
+        if (currentDir.getParent() != null) tableModel.addRow(new Object[]{dirIcon, "..", "", ""});
+
+        // Add current directory contents
         for (SystemNode node : currentDir.getChildren()) {
             ImageIcon icon = node.isDirectory() ? dirIcon : fileIcon;
             String size = calculateSize(node.getSize());
@@ -117,30 +117,53 @@ public class Explorer extends JFrame {
             tableModel.addRow(new Object[]{icon, node.getName(), modified, size});
         }
 
-        if (currentDir.getChildren().isEmpty()) {
-            tableModel.addRow(new Object[]{null, "(Empty Directory)", "", ""});
-        }
+        if (currentDir.getChildren().isEmpty()) tableModel.addRow(new Object[]{null, "(Empty Directory)", "", ""});
     }
 
-    private void handleCommand (String command) {
-        if (command.startsWith("cd ")) {
-            String dirName = command.substring(3).trim();
-            if (dirName.equals("..")) {
-                if (currentDir.getParent() != null) {
-                    currentDir = currentDir.getParent();
-                    updateTable();
-                }
-            } else {
-                for (SystemNode node : currentDir.getChildren()) {
-                    if (node.isDirectory() && node.getName().equals(dirName)) {
-                        currentDir = (Directory) node;
-                        updateTable();
-                        return;
-                    }
-                }
-                JOptionPane.showMessageDialog(this, "Directory not found " + dirName, "Error", JOptionPane.ERROR_MESSAGE);
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void showContent(File file) {
+        // Create a dialog window
+        JDialog dialog = new JDialog(this, file.getName(), true); // modal dialog
+        dialog.setSize(600, 400);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        // Text area with file content
+        JTextArea textArea = new JTextArea(file.getContent());
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Add text area inside a scroll pane
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        // Store original content
+        String originalContent = file.getContent();
+
+        // Handle window close event
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.addWindowListener(new WindowAdapter() {
+            @Override public void windowClosing(WindowEvent e) {
+                String newContent = textArea.getText();
+                if (!newContent.equals(originalContent)) {
+                    int option = JOptionPane.showConfirmDialog(dialog,
+                        "Do you want to save the changes?",
+                        "Save Confirmation", JOptionPane.YES_NO_OPTION
+                    );
+                    if (option == JOptionPane.YES_OPTION) {
+                        file.setContent(newContent); // Save the changes
+                        updateTable(currentDir);
+                        dialog.dispose();
+                    } else if (option == JOptionPane.NO_OPTION) dialog.dispose(); // Close without saving
+                } else dialog.dispose(); // Close directly if no changes
             }
-        } else JOptionPane.showMessageDialog(this, "Unknown command: " + command, "Error", JOptionPane.ERROR_MESSAGE);
+        });
+
+        dialog.setVisible(true);
     }
 
     private String getFullPath(Directory dir) {
