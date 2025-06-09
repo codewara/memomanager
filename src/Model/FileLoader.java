@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.File;
+import java.util.List;
 
 public class FileLoader {
     public static Directory loadFromJSON(File file, DiskManager diskManager) throws Exception {
@@ -23,8 +24,8 @@ public class FileLoader {
                 String name = childNode.get("name").asText();
                 String content = childNode.get("content").asText("");
                 String modifiedTime = childNode.get("modified").asText("");
-                Model.File file = new Model.File(name, dir, content, modifiedTime);
-                diskManager.allocateContiguous(file.getContent());
+                List<Integer> usedBlocks = diskManager.allocateContiguous(content);
+                Model.File file = new Model.File(name, dir, content, modifiedTime, usedBlocks);
                 dir.addChild(file);
             }
         }
