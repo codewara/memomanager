@@ -9,13 +9,11 @@ public class DiskManager {
     public DiskManager(int diskSize) {
         this.diskSize = diskSize;
         this.blocks = new Block[diskSize];
-        for (int i = 0; i < diskSize; i++) {
-            blocks[i] = new Block(i);
-        }
+        for (int i = 0; i < diskSize; i++) blocks[i] = new Block(i);
     }
 
     public List<Integer> allocateContiguous(String content) {
-        int requiredBlocks = (int) Math.ceil((double) content.length() / 10);
+        int requiredBlocks = (int) Math.ceil((double) content.length() / 512);
         for (int i = 0; i <= diskSize - requiredBlocks; i++) {
             boolean available = true;
             for (int j = 0; j < requiredBlocks; j++) {
@@ -35,12 +33,15 @@ public class DiskManager {
         } return new ArrayList<>();
     }
 
-    public Block[] getBlocks() { return blocks; }
-
-    public void reset() {
-        for (Block block : blocks) {
-            block.setUsed(false);
-            block.setData("");
+    public void deallocate(Set<Integer> blockIndices) {
+        for (int index : blockIndices) {
+            if (index >= 0 && index < diskSize) {
+                blocks[index].setUsed(false);
+                blocks[index].setData("");
+            }
         }
     }
+
+    public Block[] getBlocks() { return blocks; }
+    public Block getBlock(int index) { return blocks[index]; }
 }
