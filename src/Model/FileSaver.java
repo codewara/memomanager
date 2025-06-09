@@ -1,9 +1,9 @@
 package Model;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.*;
 
 public class FileSaver {
     public static void saveToJSON (Directory root, java.io.File output) {
@@ -17,24 +17,26 @@ public class FileSaver {
     }
 
     private static JSONObject dirToJson (Directory dir) {
-        JSONObject json = new JSONObject();
-        json.put("name", dir.getName());
-        json.put("type", "directory");
-        json.put("modified", dir.getModifiedTime());
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", dir.getName());
+        map.put("type", "directory");
 
-        JSONArray children = new JSONArray();
+        List<Object> children = new ArrayList<>();
         for (SystemNode child : dir.getChildren()) {
-            if (child instanceof Directory subDir) children.put(dirToJson(subDir));
-            else if (child instanceof File file) {
-                JSONObject f = new JSONObject();
-                f.put("name", file.getName());
-                f.put("type", "file");
-                f.put("content", file.getContent());
-                f.put("modified", file.getModifiedTime());
-                children.put(f);
-            }
+            if (child instanceof Directory subDir) children.add(dirToJson(subDir));
+            else if (child instanceof File file) children.add(fileToJson(file));
         }
-        json.put("children", children);
-        return json;
+        map.put("children", children);
+        map.put("modified", dir.getModifiedTime());
+        return new JSONObject(map);
+    }
+
+    public static JSONObject fileToJson(File file) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", file.getName());
+        map.put("type", "file");
+        map.put("content", file.getContent());
+        map.put("modified", file.getModifiedTime());
+        return new JSONObject(map);
     }
 }
