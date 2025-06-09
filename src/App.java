@@ -1,7 +1,6 @@
 import Controller.SystemController;
 
 import java.io.File;
-import java.util.Objects;
 import javax.swing.SwingUtilities;
 
 public class App {
