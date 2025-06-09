@@ -1,32 +1,46 @@
 {
     "name": "",
-    "modified": "2025-Jun-10 04:36",
+    "modified": "10-Jun-2025 06:50",
     "type": "directory",
     "children": [
         {
             "name": "docs",
-            "modified": "09-Jun-2025 02:41",
+            "modified": "10-Jun-2025 06:50",
             "type": "directory",
             "children": [
                 {
                     "name": "a.txt",
-                    "modified": "09-Jun-2025 02:41",
+                    "modified": "10-Jun-2025 06:39",
                     "type": "file",
-                    "content": "This is a text file."
+                    "startBlock": "0",
+                    "content": "This is a text file.",
+                    "endBlock": "0"
                 },
                 {
                     "name": "b.txt",
-                    "modified": "01-Oct-2023 12:00",
+                    "modified": "10-Jun-2025 06:39",
                     "type": "file",
-                    "content": "This is another text file."
+                    "startBlock": "1",
+                    "content": "This is another text file.",
+                    "endBlock": "1"
+                },
+                {
+                    "name": "c.txt",
+                    "modified": "10-Jun-2025 06:50",
+                    "type": "file",
+                    "startBlock": "3",
+                    "content": "This is another text file but longer\n\n12345678901234567890123456789012123456789012345678901234567890121234567890123456789012345678901212345678901234567890123456789012123456789012345678901234567890121234567890123456789012345678901212345678901234567890123456789012123456789012345678901234567890121234567890123456789012345678901212345678901234567890123456789012123456789012345678901234567890121234567890123456789012345678901212345678901234567890123456789012123456789012345678901234567890121234567890123456789012345678901212345678901234567890123456789012",
+                    "endBlock": "4"
                 }
             ]
         },
         {
             "name": "readme.md",
-            "modified": "01-Oct-2023 12:00",
+            "modified": "10-Jun-2025 06:40",
             "type": "file",
-            "content": "# Welcome to the Project\n\nThis is a sample project structure.\n\n## Contents\n- `docs/`: Contains documentation files.\n- `readme.md`: This file provides an overview of the project.\n"
+            "startBlock": "2",
+            "content": "# Welcome to the Project\n\nThis is a sample project structure.\n\n## Contents\n- `docs/`: Contains documentation files.\n- `readme.md`: This file provides an overview of the project.",
+            "endBlock": "2"
         }
     ]
 }
