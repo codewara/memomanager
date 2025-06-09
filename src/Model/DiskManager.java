@@ -34,4 +34,13 @@ public class DiskManager {
             }
         } return new ArrayList<>();
     }
+
+    public Block[] getBlocks() { return blocks; }
+
+    public void reset() {
+        for (Block block : blocks) {
+            block.setUsed(false);
+            block.setData("");
+        }
+    }
 }
