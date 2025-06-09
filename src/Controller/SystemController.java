@@ -10,7 +10,9 @@ import java.text.SimpleDateFormat;
 
 public class SystemController {
     private Explorer explorer;
+    private File source;
     private Directory currentDir;
+    private Directory root;
     private final DiskManager diskManager;
 
     public SystemController() { this.diskManager = new DiskManager(4096); }
@@ -18,6 +20,8 @@ public class SystemController {
     public void start (File json) {
         try {
             Directory root = FileLoader.loadFromJSON(json, diskManager);
+            this.root = root;
+            this.source = json;
             this.currentDir = root;
             this.explorer = new Explorer(this, root, diskManager);
             this.explorer.updateTable(currentDir);
@@ -38,6 +42,8 @@ public class SystemController {
         explorer.getMemoryPanel().highlightBlocks(usedBlocks);
 
     }
+
+    public void updateJSON () { FileSaver.saveToJSON(root, source);}
 
     public void handleCommand (String command) {
         String[] cmd = command.toLowerCase().trim().split("\\s+");

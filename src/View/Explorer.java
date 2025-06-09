@@ -23,12 +23,14 @@ public class Explorer extends JFrame {
         .getScaledInstance(25, 25, Image.SCALE_SMOOTH)
     );
 
+    private final SystemController controller;
     private final MemoryPanel memoryPanel;
     private Directory currentDir;
 
     // Constructor
     public Explorer (SystemController controller, Directory root, DiskManager diskManager) {
         super("File Explorer");
+        this.controller = controller;
         this.currentDir = root;
 
         // Frame setup
@@ -114,6 +116,7 @@ public class Explorer extends JFrame {
     }
 
     public void updateTable(Directory dir) {
+        this.controller.updateJSON();
         this.currentDir = dir;
         pathField.setText(getFullPath(currentDir));
         tableModel.setRowCount(0);
