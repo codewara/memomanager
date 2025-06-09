@@ -4,9 +4,9 @@ import Model.*;
 import View.Explorer;
 
 import javax.swing.*;
+import java.util.*;
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class SystemController {
     private Explorer explorer;
@@ -90,83 +90,136 @@ public class SystemController {
     }
 
     private void mkdir(String dirName) {
+        // Check if the directory name is valid
         if (currentDir.findChild(dirName) != null) {
             explorer.showError("Directory already exists: " + dirName);
             return;
         }
-        Directory newDir = new Directory(dirName, currentDir, new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()));
+
+        // Validate directory name before creating
+        else if (dirName.contains("/") || dirName.contains("\\") || dirName.equals("..")) {
+            explorer.showError("Invalid directory name: " + dirName);
+            return;
+        }
+
+        // Create a new directory with the current time as modified time
+        Directory newDir = new Directory(
+            dirName, currentDir,
+            new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date())
+        );
+
+        // Add the new directory to the current directory
         currentDir.addChild(newDir);
         explorer.updateTable(currentDir);
     }
 
     private void cd(String dirName) {
+        // Check if the directory name is valid
         if (dirName.equals("..")) {
             if (currentDir.getParent() != null) {
                 currentDir = currentDir.getParent();
                 explorer.updateTable(currentDir);
-            } else explorer.showError("Already at root directory!");
-        } else {
+            } else explorer.showError("Already at root directory!"); // Show error if trying to go above root
+        }
+
+        else { // Check if the directory exists in the current directory
             SystemNode node = currentDir.findChild(dirName);
             if (node != null && node.isDirectory()) {
-                currentDir = (Directory) node;
+                currentDir = (Directory) node; // Change current directory to the found directory
                 explorer.updateTable(currentDir);
                 return;
-            } explorer.showError("Directory not found: " + dirName);
+            } explorer.showError("Directory not found: " + dirName); // Show error if directory doesn't exist
         }
     }
 
     private void rmdir(String dirName) {
+        // Check if directory exists
         SystemNode node = currentDir.findChild(dirName);
         if (node != null) {
+            // Validate that it's a directory
             if (!node.isDirectory()) {
                 explorer.showError("Not a directory: " + dirName);
                 return;
             }
+
+            // Check if directory is empty
             Directory dir = (Directory) node;
             if (dir.getChildren().isEmpty()) {
-                currentDir.removeChild(node);
+                currentDir.removeChild(node); // Remove the directory if it's empty
                 explorer.updateTable(currentDir);
-            } else explorer.showError("Directory not empty: " + dirName);
-        } else explorer.showError("Directory not found: " + dirName);
+            } else explorer.showError("Directory not empty: " + dirName); // Show error if directory is not empty
+        } else explorer.showError("Directory not found: " + dirName); // Show error if directory doesn't exist
     }
 
     private void touch (String fileName) {
+        // Check if file already exists
         SystemNode node = currentDir.findChild(fileName);
         if (node != null && !node.isDirectory()) {
             Model.File file = (Model.File) node;
-            file.setModifiedTime(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()));
+            file.setModifiedTime(new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date())); // Update modified time
             explorer.updateTable(currentDir);
             return;
         }
+
+        // Validate file name before creating
+        if (fileName.contains("/") || fileName.contains("\\") || fileName.equals("..")) {
+            explorer.showError("Invalid file name: " + fileName);
+            return;
+        }
+
         // If file doesn't exist, create a new one
-        Model.File newFile = new Model.File(fileName, currentDir, "", new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()));
+        Model.File newFile = new Model.File(
+            fileName, currentDir, "",
+            new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()),
+            diskManager.allocateContiguous("")
+        );
+
+        // Add the new file to the current directory
         currentDir.addChild(newFile);
         explorer.updateTable(currentDir);
     }
 
     private void nano(String fileName) {
+        // Check if file already exists
         SystemNode node = currentDir.findChild(fileName);
         if (node != null && !node.isDirectory()) {
             Model.File file = (Model.File) node;
             explorer.showContent(file);
             return;
         }
+
+        // Validate file name before creating
+        if (fileName.contains("/") || fileName.contains("\\") || fileName.equals("..")) {
+            explorer.showError("Invalid file name: " + fileName);
+            return;
+        }
+
         // If file doesn't exist, create a new one
-        Model.File newFile = new Model.File(fileName, currentDir, "", new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()));
+        Model.File newFile = new Model.File(
+            fileName, currentDir, "",
+            new SimpleDateFormat("dd-MMM-yyyy HH:mm").format(new Date()),
+            diskManager.allocateContiguous("")
+        );
+
+        // Add the new file to the current directory
         currentDir.addChild(newFile);
         explorer.updateTable(currentDir);
         explorer.showContent(newFile); // Open the new file in the editor
     }
 
     private void rm(String fileName) {
+        // Check if file exists
         SystemNode node = currentDir.findChild(fileName);
         if (node != null) {
+            // Validate that it's a file, not a directory
             if (node.isDirectory()) {
                 explorer.showError("Cannot remove directory: " + fileName);
                 return;
             }
+
+            // Remove the file
             currentDir.removeChild(node);
             explorer.updateTable(currentDir);
-        } else explorer.showError("File not found: " + fileName);
+        } else explorer.showError("File not found: " + fileName); // Show error if file doesn't exist
     }
 }
