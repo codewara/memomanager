@@ -13,7 +13,7 @@ public class SystemController {
     private Directory currentDir;
     private final DiskManager diskManager;
 
-    public SystemController() { this.diskManager = new DiskManager(500); }
+    public SystemController() { this.diskManager = new DiskManager(4096); }
 
     public void start (File json) {
         try {
