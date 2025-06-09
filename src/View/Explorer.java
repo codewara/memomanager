@@ -82,12 +82,14 @@ public class Explorer extends JFrame {
 
         // Right panel: MemoryPanel
         MemoryPanel memoryPanel = new MemoryPanel(diskManager);
-        memoryPanel.setPreferredSize(new Dimension(300, 0));
         memoryPanel.setBorder(BorderFactory.createTitledBorder("Memory View"));
 
-        // Split pane for table and memory view
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, memoryPanel);
-        splitPane.setDividerLocation(650);
+        // Wrap MemoryPanel in a scroll pane
+        JScrollPane memoryScrollPane = new JScrollPane(memoryPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, memoryScrollPane);
+        splitPane.setDividerLocation(getWidth() - 275); // Adjust initial divider location
+        splitPane.setEnabled(false);
+        splitPane.setDividerSize(0);
         add(splitPane, BorderLayout.CENTER);
 
         // CLI field

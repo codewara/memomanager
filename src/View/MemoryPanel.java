@@ -10,19 +10,18 @@ public class MemoryPanel extends JPanel {
 
     public MemoryPanel(DiskManager diskManager) {
         this.diskManager = diskManager;
-        setLayout(new GridLayout(0, 64, 2, 2));
+        setLayout(new GridLayout(0, 16, 2, 2));
         renderBlocks();
     }
 
     private void renderBlocks() {
+        int blockSize = 5; // Size of each block in pixels
+
         removeAll();
         for (Block block : diskManager.getBlocks()) {
             JPanel blockPanel = new JPanel();
-            blockPanel.setPreferredSize(new Dimension(20, 20));
+            blockPanel.setMaximumSize(new Dimension(blockSize, blockSize));
             blockPanel.setBackground(block.isUsed() ? Color.GREEN : Color.LIGHT_GRAY);
-            blockPanel.setToolTipText(block.isUsed()
-                ? ("[" + block.getIndex() + "] " + block.getData())
-                : ("[" + block.getIndex() + "] Free"));
             blockPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
             add(blockPanel);
         }
