@@ -23,6 +23,7 @@ public class Explorer extends JFrame {
         .getScaledInstance(25, 25, Image.SCALE_SMOOTH)
     );
 
+    private final MemoryPanel memoryPanel;
     private Directory currentDir;
 
     // Constructor
@@ -66,10 +67,14 @@ public class Explorer extends JFrame {
         table.setShowGrid(false);
         table.setIntercellSpacing(new Dimension(0, 0));
 
-        // Event: double-click directory to open
+        // Event: click on table rows
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2) {
+                if (e.getClickCount() == 1) {
+                    int row = table.getSelectedRow();
+                    String name = (String) table.getValueAt(row, 1);
+                    if (!name.equals("..")) controller.showMemoryUsage(name);
+                } else if (e.getClickCount() == 2) {
                     int row = table.getSelectedRow();
                     String name = (String) table.getValueAt(row, 1);
                     controller.open(name);
@@ -81,13 +86,18 @@ public class Explorer extends JFrame {
         JScrollPane tableScroll = new JScrollPane(table);
 
         // Right panel: MemoryPanel
-        MemoryPanel memoryPanel = new MemoryPanel(diskManager);
+        this.memoryPanel = new MemoryPanel(diskManager);
         memoryPanel.setBorder(BorderFactory.createTitledBorder("Memory View"));
 
         // Wrap MemoryPanel in a scroll pane
         JScrollPane memoryScrollPane = new JScrollPane(memoryPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, memoryScrollPane);
-        splitPane.setDividerLocation(getWidth() - 275); // Adjust initial divider location
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                splitPane.setDividerLocation(getWidth() - 275);
+            }
+        });
         splitPane.setEnabled(false);
         splitPane.setDividerSize(0);
         add(splitPane, BorderLayout.CENTER);
@@ -167,6 +177,8 @@ public class Explorer extends JFrame {
 
         dialog.setVisible(true);
     }
+
+    public MemoryPanel getMemoryPanel() { return memoryPanel; }
 
     private String getFullPath(Directory dir) {
         StringBuilder path = new StringBuilder();
