@@ -27,6 +27,18 @@ public class SystemController {
         }
     }
 
+    public void showMemoryUsage (String fileName) {
+        SystemNode item = currentDir.findChild(fileName);
+        Set<Integer> usedBlocks = new HashSet<>();
+
+        if (item.isDirectory()) {
+            collectUsedBlocks((Directory) item, usedBlocks);
+        } else usedBlocks.addAll(((Model.File) item).getUsedBlocks());
+
+        explorer.getMemoryPanel().highlightBlocks(usedBlocks);
+
+    }
+
     public void handleCommand (String command) {
         String[] cmd = command.toLowerCase().trim().split("\\s+");
         if (cmd.length == 0) return;
@@ -87,6 +99,16 @@ public class SystemController {
                 explorer.showContent(file);
             } return;
         } explorer.showError("File or Directory not found: " + name);
+    }
+
+    private void collectUsedBlocks(Directory dir, Set<Integer> usedBlocks) {
+        for (SystemNode child : dir.getChildren()) {
+            if (child.isDirectory()) {
+                collectUsedBlocks((Directory) child, usedBlocks);
+            } else if (child instanceof Model.File) {
+                usedBlocks.addAll(((Model.File) child).getUsedBlocks());
+            }
+        }
     }
 
     private void mkdir(String dirName) {
