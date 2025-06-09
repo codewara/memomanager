@@ -4,8 +4,10 @@ import java.util.*;
 import java.text.SimpleDateFormat;
 
 public class File extends SystemNode {
-    private List<Integer> allocatedBlocks = new ArrayList<>();
+    private List<Integer> allocatedBlocks;
     private String content;
+    private int startBlock;
+    private int endBlock;
     private int size;
 
     public File(String name, Directory parent, String content, String modifiedTime, List<Integer> allocatedBlocks) {
@@ -13,6 +15,8 @@ public class File extends SystemNode {
         this.content = content;
         this.size = content != null ? content.length() : 0;
         this.allocatedBlocks = new ArrayList<>(allocatedBlocks);
+        this.startBlock = allocatedBlocks.isEmpty() ? -1 : allocatedBlocks.getFirst();
+        this.endBlock = allocatedBlocks.isEmpty() ? -1 : allocatedBlocks.getLast();
     }
 
     public String getContent() { return content; }
@@ -25,7 +29,12 @@ public class File extends SystemNode {
     public Set<Integer> getUsedBlocks() { return new HashSet<>(allocatedBlocks); }
     public void setUsedBlocks(List<Integer> blocks) {
         this.allocatedBlocks = new ArrayList<>(blocks);
+        this.startBlock = blocks.isEmpty() ? -1 : blocks.getFirst();
+        this.endBlock = blocks.isEmpty() ? -1 : blocks.getLast();
     }
+
+    public String getStartBlock() { return startBlock == -1 ? "N/A" : String.valueOf(startBlock); }
+    public String getEndBlock() { return endBlock == -1 ? "N/A" : String.valueOf(endBlock); }
 
     @Override public boolean isDirectory() { return false; }
 
