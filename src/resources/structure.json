@@ -1,32 +1,32 @@
 {
-  "type": "directory",
-  "name": "",
-  "children": [
-    {
-      "type": "directory",
-      "name": "docs",
-      "children": [
+    "name": "",
+    "modified": "2025-Jun-10 04:36",
+    "type": "directory",
+    "children": [
         {
-          "type": "file",
-          "name": "a.txt",
-          "content": "This is a text file.",
-          "modified": "09-Jun-2025 02:41"
+            "name": "docs",
+            "modified": "09-Jun-2025 02:41",
+            "type": "directory",
+            "children": [
+                {
+                    "name": "a.txt",
+                    "modified": "09-Jun-2025 02:41",
+                    "type": "file",
+                    "content": "This is a text file."
+                },
+                {
+                    "name": "b.txt",
+                    "modified": "01-Oct-2023 12:00",
+                    "type": "file",
+                    "content": "This is another text file."
+                }
+            ]
         },
         {
-          "type": "file",
-          "name": "b.txt",
-          "content": "This is another text file.",
-          "modified": "01-Oct-2023 12:00"
+            "name": "readme.md",
+            "modified": "01-Oct-2023 12:00",
+            "type": "file",
+            "content": "# Welcome to the Project\n\nThis is a sample project structure.\n\n## Contents\n- `docs/`: Contains documentation files.\n- `readme.md`: This file provides an overview of the project.\n"
         }
-      ],
-      "modified": "09-Jun-2025 02:41"
-    },
-    {
-      "type": "file",
-      "name": "readme.md",
-      "content": "# Welcome to the Project\n\nThis is a sample project structure.\n\n## Contents\n- `docs/`: Contains documentation files.\n- `readme.md`: This file provides an overview of the project.\n",
-      "modified": "01-Oct-2023 12:00"
-    }
-  ],
-  "modified": ""
+    ]
 }
