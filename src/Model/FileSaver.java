@@ -37,6 +37,8 @@ public class FileSaver {
         map.put("type", "file");
         map.put("content", file.getContent());
         map.put("modified", file.getModifiedTime());
+        map.put("startBlock", file.getStartBlock());
+        map.put("endBlock", file.getEndBlock());
         return new JSONObject(map);
     }
 }
