@@ -94,56 +94,63 @@ public class Explorer extends JFrame {
         // Wrap MemoryPanel in a scroll pane
         JScrollPane memoryScrollPane = new JScrollPane(memoryPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, memoryScrollPane);
+        splitPane.setEnabled(false);
+        splitPane.setDividerSize(0);
+
+        // Set initial divider location and update it on resize
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 splitPane.setDividerLocation(getWidth() - 275);
             }
         });
-        splitPane.setEnabled(false);
-        splitPane.setDividerSize(0);
         add(splitPane, BorderLayout.CENTER);
 
         // CLI field
         CLIField = new JTextField();
         CLIField.addActionListener(_ -> {
-            controller.handleCommand(CLIField.getText());
-            CLIField.setText("");
+            controller.handleCommand(CLIField.getText()); // Process command from CLI
+            CLIField.setText(""); // Clear CLI field after processing
         });
         add(CLIField, BorderLayout.SOUTH);
 
-        setVisible(true);
+        setVisible(true); // Make the frame visible
     }
 
+    // Update the table with current directory contents
     public void updateTable(Directory dir) {
-        this.controller.updateJSON();
-        this.currentDir = dir;
-        pathField.setText(getFullPath(currentDir));
+        this.controller.updateJSON(); // Update JSON file with current state
+        this.currentDir = dir; // Set current directory
+        pathField.setText(getFullPath(currentDir)); // Update path field
         tableModel.setRowCount(0);
 
         // Add ".." for parent directory if it exists
         if (currentDir.getParent() != null) tableModel.addRow(new Object[]{dirIcon, "..", "", ""});
 
-        // Add current directory contents
+        // Add directories in the current directory first
         for (SystemNode node : currentDir.getChildren()) if (node.isDirectory()) {
             String size = calculateSize(node.getSize());
             String modified = String.valueOf(node.getModifiedTime());
             tableModel.addRow(new Object[]{dirIcon, node.getName(), modified, size});
         }
 
+        // Add files in the current directory after directories
         for (SystemNode node : currentDir.getChildren()) if (!node.isDirectory()) {
             String size = calculateSize(node.getSize());
             String modified = String.valueOf(node.getModifiedTime());
             tableModel.addRow(new Object[]{fileIcon, node.getName(), modified, size});
         }
 
+        // If the directory is empty, add a placeholder row
         if (currentDir.getChildren().isEmpty()) tableModel.addRow(new Object[]{null, "(Empty Directory)", "", ""});
     }
 
+    // Show message dialog if operation is error
     public void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    // Show content of a file in a dialog
     public void showContent(File file) {
         // Create a dialog window
         JDialog dialog = new JDialog(this, file.getName(), true); // modal dialog
@@ -169,14 +176,18 @@ public class Explorer extends JFrame {
         dialog.addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
                 String newContent = textArea.getText();
+
+                // Confirm if content has changed
                 if (!newContent.equals(originalContent)) {
                     int option = JOptionPane.showConfirmDialog(dialog,
                         "Do you want to save the changes?",
                         "Save Confirmation", JOptionPane.YES_NO_OPTION
                     );
+
+                    // Save or discard changes based on user choice
                     if (option == JOptionPane.YES_OPTION) {
                         file.setContent(newContent); // Save the changes
-                        updateTable(currentDir);
+                        updateTable(currentDir); // Refresh the table
                         dialog.dispose();
                     } else if (option == JOptionPane.NO_OPTION) dialog.dispose(); // Close without saving
                 } else dialog.dispose(); // Close directly if no changes
@@ -186,22 +197,27 @@ public class Explorer extends JFrame {
         dialog.setVisible(true);
     }
 
+    // Getter for MemoryPanel
     public MemoryPanel getMemoryPanel() { return memoryPanel; }
 
+    // Get full path of the directory
     private String getFullPath(Directory dir) {
         StringBuilder path = new StringBuilder();
         Directory current = dir;
+
+        // Traverse up to the root directory
         while (current != null) {
-            if (!current.getName().isEmpty()) path.insert(0, current.getName() + "/");
-            current = current.getParent();
+            if (!current.getName().isEmpty()) path.insert(0, current.getName() + "/"); // Add directory name to the front
+            current = current.getParent(); // Move to parent directory
         }
-        return path.isEmpty() ? "/" : path.toString();
+        return path.isEmpty() ? "/" : path.toString(); // Ensure root path is "/"
     }
 
+    // Calculate size in human-readable format
     private String calculateSize(int size) {
-        if (size < 1024) return size + " B";
-        else if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0);
-        else if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024));
-        else return String.format("%.2f GB", size / (1024.0 * 1024 * 1024));
+        if (size < 1024) return size + " B"; // Bytes
+        else if (size < 1024 * 1024) return String.format("%.2f KB", size / 1024.0); // Kilobytes
+        else if (size < 1024 * 1024 * 1024) return String.format("%.2f MB", size / (1024.0 * 1024)); // Megabytes
+        else return String.format("%.2f GB", size / (1024.0 * 1024 * 1024)); // Gigabytes
     }
 }
