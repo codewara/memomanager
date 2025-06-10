@@ -137,11 +137,10 @@ Enter commands in the text field at the bottom of the main window:
 -----
 
 ## Screenshots
-
-<img src="src/Assets/screenshots/1.png" style="width: 49%"/>
-<img src="src/Assets/screenshots/2.png" style="width: 49%"/>
-<img src="src/Assets/screenshots/3.png" style="width: 49%"/>
-<img src="src/Assets/screenshots/4.png" style="width: 49%"/>
+|                                           |                                           |
+| :---------------------------------------: | :---------------------------------------: |
+| <img src="src/Assets/screenshots/1.png"/> | <img src="src/Assets/screenshots/2.png"/> |
+| <img src="src/Assets/screenshots/3.png"/> | <img src="src/Assets/screenshots/4.png"/> |
 
 -----
 
