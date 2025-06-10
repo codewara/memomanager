@@ -105,7 +105,15 @@ public class SystemController {
                 explorer.updateTable(currentDir);
             } else {
                 Model.File file = (Model.File) node;
+                String oldContent = file.getContent(); // Store old content for comparison
                 explorer.showContent(file);
+
+                // If content was changed, update modified time and content
+                if (!file.getContent().equals(oldContent)) {
+                    diskManager.deallocate(file.getUsedBlocks()); // Deallocate old blocks
+                    file.setUsedBlocks(diskManager.allocateContiguous(file.getContent())); // Allocate new blocks
+                    explorer.getMemoryPanel().update();
+                }
             } return;
         } explorer.showError("File or Directory not found: " + name);
     }
